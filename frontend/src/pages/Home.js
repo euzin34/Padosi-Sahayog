@@ -4,7 +4,7 @@ import QuickActions from '../components/QuickActions';
 import ActivityCard from '../components/ActivityCard';
 import './Home.css';
 
-const Home = () => {
+const Home = ({ onNavigate }) => {
   // Mock data for activities
   const activities = [
     {
@@ -61,7 +61,7 @@ const Home = () => {
         <SearchBar />
       </div>
 
-      <QuickActions />
+      <QuickActions onNavigate={onNavigate} />
 
       <div className="activity-section">
         <div className="section-header">

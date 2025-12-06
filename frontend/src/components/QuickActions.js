@@ -2,7 +2,7 @@ import React from 'react';
 import { Plus, HandHeart, MapPin } from 'lucide-react';
 import './QuickActions.css';
 
-const QuickActions = () => {
+const QuickActions = ({ onNavigate }) => {
   const actions = [
     {
       id: 'post',
@@ -10,7 +10,8 @@ const QuickActions = () => {
       subtitle: 'Ask for help',
       icon: Plus,
       bgColor: 'var(--primary-green-light)',
-      iconColor: 'var(--primary-green)'
+      iconColor: 'var(--primary-green)',
+      onClick: () => onNavigate('post-request')
     },
     {
       id: 'offer',
@@ -18,7 +19,8 @@ const QuickActions = () => {
       subtitle: 'Help others',
       icon: HandHeart,
       bgColor: 'var(--primary-blue-light)',
-      iconColor: 'var(--primary-blue)'
+      iconColor: 'var(--primary-blue)',
+      onClick: () => onNavigate('offer-help')
     },
     {
       id: 'nearby',
@@ -41,6 +43,7 @@ const QuickActions = () => {
               key={action.id}
               className="action-card"
               style={{ backgroundColor: action.bgColor }}
+              onClick={action.onClick}
             >
               <div 
                 className="action-icon"
