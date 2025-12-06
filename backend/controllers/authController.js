@@ -16,13 +16,17 @@ const register = async (req, res) => {
             });
         }
 
-        // Create user in Firebase Auth
-        const userRecord = await auth.createUser({
+        // Create user object for Firebase Auth
+        const authUserObj = {
             email,
-            password,
-            displayName: displayName || null,
-            phoneNumber: phoneNumber || null
-        });
+            password
+        };
+
+        if (displayName) authUserObj.displayName = displayName;
+        if (phoneNumber) authUserObj.phoneNumber = phoneNumber;
+
+        // Create user in Firebase Auth
+        const userRecord = await auth.createUser(authUserObj);
 
         // Create user profile in Firestore
         const userProfile = {
