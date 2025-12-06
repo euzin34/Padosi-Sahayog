@@ -1,0 +1,28 @@
+.chat-page {
+  height: calc(100vh - 140px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+}
+
+.chat-placeholder {
+  text-align: center;
+  max-width: 400px;
+}
+
+.chat-placeholder h2 {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.chat-placeholder p {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.chat-description {
+  font-size: 0.9375rem;
+  color: var(--text-light);
+}

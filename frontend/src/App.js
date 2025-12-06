@@ -1,23 +1,37 @@
-import logo from './Logo.png';
+import React, { useState } from 'react';
+import Navbar from './components/Navbar';
+import BottomNav from './components/BottomNav';
+import Home from './pages/Home';
+import Map from './pages/Map';
+import Chat from './pages/Chat';
+import Profile from './pages/Profile';
 import './App.css';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('home');
+
+  const renderPage = () => {
+    switch (activeTab) {
+      case 'home':
+        return <Home />;
+      case 'map':
+        return <Map />;
+      case 'chat':
+        return <Chat />;
+      case 'profile':
+        return <Profile />;
+      default:
+        return <Home />;
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar />
+      <main className="main-content">
+        {renderPage()}
+      </main>
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 }
