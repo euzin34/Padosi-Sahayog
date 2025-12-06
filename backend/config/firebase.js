@@ -38,8 +38,34 @@ try {
     console.log('✅ Firebase Admin SDK initialized successfully');
     console.log('📦 Using Local JSON Database for persistence');
 } catch (error) {
-    console.error('❌ Error initializing Firebase Admin SDK:', error.message);
-    process.exit(1);
+    console.warn('⚠️ Firebase credentials not configured. STARTING IN MOCK MODE.');
+    console.warn('⚠️ Authentication will be simulated with mock tokens.');
+    
+    // Mock Admin Auth for testing
+    auth = {
+        verifyIdToken: async (token) => {
+            if (token.startsWith('mock-token-')) {
+                return {
+                    uid: token.replace('mock-token-', ''),
+                    email: 'mockuser@example.com',
+                    email_verified: true
+                };
+            }
+            throw new Error('Invalid token');
+        },
+        createUser: async (user) => ({
+            uid: 'mock-user-' + Date.now(),
+            email: user.email,
+            displayName: user.displayName
+        }),
+        updateUser: async () => ({})
+    };
+    
+    // Use local DB
+    const localDb = require('../utils/localDb');
+    db = localDb;
+    
+    // Do NOT exit
 }
 
 module.exports = { db, auth, admin };
