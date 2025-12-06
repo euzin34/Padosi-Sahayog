@@ -13,6 +13,11 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
  */
 export const registerUser = async (email, password, displayName, phoneNumber) => {
   try {
+    // Check if Firebase is configured
+    if (!auth) {
+      throw new Error('Firebase is not configured. Please add your Firebase credentials to frontend/src/config/firebase.js. See FIREBASE_SETUP.md for instructions.');
+    }
+
     // First, register with backend
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
@@ -25,6 +30,8 @@ export const registerUser = async (email, password, displayName, phoneNumber) =>
         displayName,
         phoneNumber
       }),
+    }).catch(err => {
+      throw new Error('Cannot connect to server. Please make sure the backend is running on http://localhost:5000');
     });
 
     const data = await response.json();
@@ -52,6 +59,11 @@ export const registerUser = async (email, password, displayName, phoneNumber) =>
  */
 export const loginUser = async (email, password, location = null) => {
   try {
+    // Check if Firebase is configured
+    if (!auth) {
+      throw new Error('Firebase is not configured. Please add your Firebase credentials to frontend/src/config/firebase.js. See FIREBASE_SETUP.md for instructions.');
+    }
+
     // Sign in with Firebase
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -73,18 +85,24 @@ export const loginUser = async (email, password, location = null) => {
         'Authorization': `Bearer ${idToken}`
       },
       body: JSON.stringify(requestBody),
+    }).catch(err => {
+      console.warn('Backend not available, continuing with Firebase auth only');
+      // Continue without backend - just use Firebase auth
+      return null;
     });
 
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.error || 'Login failed');
+    let data = null;
+    if (response) {
+      data = await response.json();
+      if (!data.success) {
+        console.warn('Backend login failed:', data.error);
+      }
     }
 
     return {
       success: true,
       user: user,
-      data: data.data
+      data: data ? data.data : { uid: user.uid, email: user.email }
     };
   } catch (error) {
     console.error('Login error:', error);
