@@ -12,11 +12,11 @@ import { useAuth } from '../context/AuthContext';
 import './Profile.css';
 
 const Profile = () => {
-  const { logout } = useAuth();
+  const { logout, currentUser } = useAuth();
 
-  // Mock user data
+  // Use actual user data
   const user = {
-    name: 'Amit Singh',
+    name: currentUser?.email || currentUser?.displayName || 'User',
     location: 'Block A, Sector 15',
     avatar: '👨‍💼',
     rating: 4.8,

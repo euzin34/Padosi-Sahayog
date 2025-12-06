@@ -121,6 +121,12 @@ const Map = ({ onNavigate }) => {
       return;
     }
 
+    // Check if this is mock data
+    if (item.id && item.id.toString().startsWith('mock-')) {
+      alert('This is demo data. Please post a real request to test the accept functionality.');
+      return;
+    }
+
     try {
       const response = await taskAPI.accept(item.id);
       
@@ -138,7 +144,11 @@ const Map = ({ onNavigate }) => {
       }
     } catch (err) {
       console.error('Accept error:', err);
-      alert(err.message || 'Failed to accept task. Please try again.');
+      if (err.message && err.message.includes('not found')) {
+        alert('This task no longer exists or has been removed.');
+      } else {
+        alert(err.message || 'Failed to accept task. Please try again.');
+      }
     }
   };
 

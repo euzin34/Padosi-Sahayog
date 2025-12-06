@@ -1,12 +1,16 @@
 const { db } = require('../config/firebase');
 const { isValidCoordinates } = require('../utils/distance');
 
+// In-memory storage for tasks (fallback when Firebase is in mock mode)
+const tasksStorage = new Map();
+let taskIdCounter = 1;
+
 /**
  * Create a new task listing
  */
 const createTask = async (req, res) => {
     try {
-        const { title, description, location, category } = req.body;
+        const { title, description, location, category, urgency, type } = req.body;
         const uid = req.user.uid;
 
         // Validate required fields
@@ -26,7 +30,9 @@ const createTask = async (req, res) => {
         }
 
         // Create task object
+        const taskId = `task-${taskIdCounter++}`;
         const task = {
+            id: taskId,
             title,
             description,
             location: {
@@ -34,22 +40,30 @@ const createTask = async (req, res) => {
                 longitude: location.longitude
             },
             category: category || 'general',
+            urgency: urgency || 'medium',
+            type: type || 'request',
             createdBy: uid,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             status: 'active'
         };
 
-        // Add task to Firestore
-        const taskRef = await db.collection('tasks').add(task);
+        // Store in memory
+        tasksStorage.set(taskId, task);
+
+        // Try to add to Firestore (will work if Firebase is configured)
+        try {
+            const taskRef = await db.collection('tasks').add(task);
+            task.id = taskRef.id;
+            tasksStorage.set(taskRef.id, task);
+        } catch (err) {
+            console.log('Firebase not available, using in-memory storage');
+        }
 
         res.status(201).json({
             success: true,
             message: 'Task created successfully',
-            data: {
-                id: taskRef.id,
-                ...task
-            }
+            data: task
         });
     } catch (error) {
         console.error('Create task error:', error);
@@ -78,27 +92,20 @@ const getAllTasks = async (req, res) => {
             });
         }
 
-        // Build query
-        let query = db.collection('tasks').where('status', '==', status);
-
+        // Use in-memory storage
+        let allTasks = Array.from(tasksStorage.values());
+        
+        // Filter by status
+        allTasks = allTasks.filter(task => task.status === status);
+        
+        // Filter by category if provided
         if (category) {
-            query = query.where('category', '==', category);
+            allTasks = allTasks.filter(task => task.category === category);
         }
 
-        // Get total count
-        const snapshot = await query.get();
-        const totalTasks = snapshot.size;
-
-        // Apply pagination
-        const tasks = [];
+        const totalTasks = allTasks.length;
         const startIndex = (pageNum - 1) * limitNum;
-
-        snapshot.docs.slice(startIndex, startIndex + limitNum).forEach(doc => {
-            tasks.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
+        const tasks = allTasks.slice(startIndex, startIndex + limitNum);
 
         res.json({
             success: true,
@@ -128,9 +135,9 @@ const getTaskById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const taskDoc = await db.collection('tasks').doc(id).get();
+        const task = tasksStorage.get(id);
 
-        if (!taskDoc.exists) {
+        if (!task) {
             return res.status(404).json({
                 success: false,
                 error: 'Task not found'
@@ -139,10 +146,7 @@ const getTaskById = async (req, res) => {
 
         res.json({
             success: true,
-            data: {
-                id: taskDoc.id,
-                ...taskDoc.data()
-            }
+            data: task
         });
     } catch (error) {
         console.error('Get task error:', error);
@@ -280,20 +284,18 @@ const acceptTask = async (req, res) => {
         const { id } = req.params;
         const uid = req.user.uid;
 
-        // Get existing task
-        const taskDoc = await db.collection('tasks').doc(id).get();
+        // Get existing task from memory
+        const task = tasksStorage.get(id);
 
-        if (!taskDoc.exists) {
+        if (!task) {
             return res.status(404).json({
                 success: false,
                 error: 'Task not found'
             });
         }
 
-        const taskData = taskDoc.data();
-
         // Check if user is trying to accept their own task
-        if (taskData.createdBy === uid) {
+        if (task.createdBy === uid) {
             return res.status(400).json({
                 success: false,
                 error: 'You cannot accept your own task'
@@ -301,7 +303,7 @@ const acceptTask = async (req, res) => {
         }
 
         // Check if task is already accepted
-        if (taskData.status === 'accepted' || taskData.acceptedBy) {
+        if (task.status === 'accepted' || task.acceptedBy) {
             return res.status(400).json({
                 success: false,
                 error: 'This task has already been accepted'
@@ -309,25 +311,18 @@ const acceptTask = async (req, res) => {
         }
 
         // Update task with acceptor info
-        const updates = {
-            status: 'accepted',
-            acceptedBy: uid,
-            acceptedAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
+        task.status = 'accepted';
+        task.acceptedBy = uid;
+        task.acceptedAt = new Date().toISOString();
+        task.updatedAt = new Date().toISOString();
 
-        await db.collection('tasks').doc(id).update(updates);
-
-        // Get updated task
-        const updatedTaskDoc = await db.collection('tasks').doc(id).get();
+        // Save updated task
+        tasksStorage.set(id, task);
 
         res.json({
             success: true,
             message: 'Task accepted successfully',
-            data: {
-                id: updatedTaskDoc.id,
-                ...updatedTaskDoc.data()
-            }
+            data: task
         });
     } catch (error) {
         console.error('Accept task error:', error);

@@ -37,6 +37,128 @@
       "createdAt": "2025-12-06T10:38:36.742Z",
       "updatedAt": "2025-12-06T10:38:36.742Z",
       "status": "active"
+    },
+    "local_1765018679529pwc85lotr": {
+      "title": "Request: Grocery",
+      "description": "I need somebody to buy me eggs and send it to my home",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T10:57:59.528Z",
+      "updatedAt": "2025-12-06T10:57:59.528Z",
+      "status": "active"
+    },
+    "local_1765018899886bgehhxihb": {
+      "title": "Request: Medicine",
+      "description": "I need someone to buy me medicine from hospital. I will say medicine name and location of delivery in chat",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "medicine",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:01:39.884Z",
+      "updatedAt": "2025-12-06T11:01:39.884Z",
+      "status": "active"
+    },
+    "local_1765020632913bc64d31b9": {
+      "id": "task-1",
+      "title": "Request: Grocery",
+      "description": "buy me anda",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "urgency": "medium",
+      "type": "request",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:30:32.912Z",
+      "updatedAt": "2025-12-06T11:30:32.912Z",
+      "status": "active"
+    },
+    "local_1765020690230lchay31u4": {
+      "id": "task-1",
+      "title": "Request: Grocery",
+      "description": "anda",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "urgency": "low",
+      "type": "request",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:31:30.230Z",
+      "updatedAt": "2025-12-06T11:31:30.230Z",
+      "status": "active"
+    },
+    "local_1765020944431ozqu1i4l8": {
+      "id": "task-1",
+      "title": "Request: Grocery",
+      "description": "buy me anda",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "urgency": "medium",
+      "type": "request",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:35:44.431Z",
+      "updatedAt": "2025-12-06T11:35:44.431Z",
+      "status": "active"
+    },
+    "local_1765020964088k0senhez0": {
+      "id": "task-1",
+      "title": "Request: Grocery",
+      "description": "buy me anda",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "urgency": "medium",
+      "type": "request",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:36:04.087Z",
+      "updatedAt": "2025-12-06T11:36:04.087Z",
+      "status": "active"
+    },
+    "local_176502097659193b6v23q3": {
+      "id": "task-1",
+      "title": "Request: Grocery",
+      "description": "fkjhfk",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "urgency": "low",
+      "type": "request",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:36:16.591Z",
+      "updatedAt": "2025-12-06T11:36:16.591Z",
+      "status": "active"
+    },
+    "local_176502149553615yifkkxz": {
+      "id": "task-1",
+      "title": "Request: Grocery",
+      "description": "fkfke",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "urgency": "medium",
+      "type": "request",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:44:55.499Z",
+      "updatedAt": "2025-12-06T11:44:55.536Z",
+      "status": "active"
     }
   }
 }
