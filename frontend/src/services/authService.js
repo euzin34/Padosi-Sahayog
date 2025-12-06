@@ -25,6 +25,8 @@ export const registerUser = async (email, password, displayName, phoneNumber) =>
         displayName,
         phoneNumber
       }),
+    }).catch(err => {
+      throw new Error('Cannot connect to server. Please make sure the backend is running on http://localhost:5000');
     });
 
     const data = await response.json();
@@ -73,18 +75,24 @@ export const loginUser = async (email, password, location = null) => {
         'Authorization': `Bearer ${idToken}`
       },
       body: JSON.stringify(requestBody),
+    }).catch(err => {
+      console.warn('Backend not available, continuing with Firebase auth only');
+      // Continue without backend - just use Firebase auth
+      return null;
     });
 
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.error || 'Login failed');
+    let data = null;
+    if (response) {
+      data = await response.json();
+      if (!data.success) {
+        console.warn('Backend login failed:', data.error);
+      }
     }
 
     return {
       success: true,
       user: user,
-      data: data.data
+      data: data ? data.data : { uid: user.uid, email: user.email }
     };
   } catch (error) {
     console.error('Login error:', error);
