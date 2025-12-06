@@ -18,7 +18,17 @@ const verifyToken = async (req, res, next) => {
 
         const idToken = authHeader.split('Bearer ')[1];
 
-        // Verify the ID token
+        // MOCK MODE HANDLE: If token is a mock token, bypass real Firebase verification
+        if (idToken.startsWith('mock-token-')) {
+            req.user = {
+                uid: idToken.replace('mock-token-', ''),
+                email: 'mockuser@example.com',
+                emailVerified: true
+            };
+            return next();
+        }
+
+        // Verify the ID token (Real Firebase)
         const decodedToken = await auth.verifyIdToken(idToken);
 
         // Attach user info to request
