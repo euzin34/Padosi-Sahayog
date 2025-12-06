@@ -12,30 +12,36 @@ import './App.css';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
+  const [pageProps, setPageProps] = useState({});
   const { currentUser } = useAuth();
+
+  const navigateTo = (tab, props = {}) => {
+    setActiveTab(tab);
+    setPageProps(props);
+  };
 
   const renderPage = () => {
     switch (activeTab) {
       case 'home':
-        return <Home onNavigate={setActiveTab} />;
+        return <Home onNavigate={navigateTo} />;
       case 'post-request':
-        return <PostRequest onBack={() => setActiveTab('home')} initialType="request" />;
+        return <PostRequest onBack={() => navigateTo('home')} initialType="request" />;
       case 'offer-help':
-        return <PostRequest onBack={() => setActiveTab('home')} initialType="offer" />;
+        return <PostRequest onBack={() => navigateTo('home')} initialType="offer" />;
       case 'map':
-        return <Map />;
+        return <Map onNavigate={navigateTo} {...pageProps} />;
       case 'chat':
-        return <Chat />;
+        return <Chat onNavigate={navigateTo} {...pageProps} />;
       case 'profile':
-        return <Profile />;
+        return <Profile onNavigate={navigateTo} />;
       default:
-        return <Home onNavigate={setActiveTab} />;
+        return <Home onNavigate={navigateTo} />;
     }
   };
 
   // Show auth screen if not logged in
   if (!currentUser) {
-    return <Auth onAuthSuccess={() => setActiveTab('home')} />;
+    return <Auth onAuthSuccess={() => navigateTo('home')} />;
   }
 
   return (
@@ -45,7 +51,7 @@ function AppContent() {
         {renderPage()}
       </main>
       {activeTab !== 'post-request' && activeTab !== 'offer-help' && (
-        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        <BottomNav activeTab={activeTab} setActiveTab={(tab) => navigateTo(tab)} />
       )}
     </div>
   );

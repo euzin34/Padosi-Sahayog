@@ -72,6 +72,22 @@
   gap: var(--spacing-md);
 }
 
+.loading-message,
+.error-message,
+.no-activities {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.error-message {
+  color: #991B1B;
+  background-color: #FEE2E2;
+  border-radius: var(--radius-md);
+  border: 1px solid #FCA5A5;
+}
+
 @media (max-width: 480px) {
   .greeting {
     font-size: 1.5rem;

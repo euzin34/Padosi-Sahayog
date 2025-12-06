@@ -244,3 +244,41 @@
 .submit-btn:active {
   transform: translateY(0);
 }
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Error Message */
+.error-message {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid #FCA5A5;
+}
+
+/* Spinner Animation */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.current-location-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

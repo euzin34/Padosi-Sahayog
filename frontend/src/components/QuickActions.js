@@ -28,7 +28,8 @@ const QuickActions = ({ onNavigate }) => {
       subtitle: 'View requests',
       icon: MapPin,
       bgColor: 'var(--primary-yellow-light)',
-      iconColor: 'var(--primary-yellow)'
+      iconColor: 'var(--primary-yellow)',
+      onClick: () => onNavigate('map')
     }
   ];
 

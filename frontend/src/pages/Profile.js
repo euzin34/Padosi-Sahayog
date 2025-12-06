@@ -5,11 +5,15 @@ import {
   Heart, 
   Link as LinkIcon, 
   ChevronRight,
-  Award
+  Award,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Profile.css';
 
 const Profile = () => {
+  const { logout } = useAuth();
+
   // Mock user data
   const user = {
     name: 'Amit Singh',
@@ -55,6 +59,15 @@ const Profile = () => {
     }
   ];
 
+  const handleLogout = async () => {
+    try {
+        await logout();
+        // Navigation handled by App.js auth state
+    } catch (error) {
+        console.error("Logout failed", error);
+    }
+  };
+
   return (
     <div className="profile-page-container">
       {/* Profile Header Card */}
@@ -84,10 +97,16 @@ const Profile = () => {
           <span className="rating-value">({user.rating})</span>
         </div>
 
-        <button className="edit-profile-btn">
-          <Settings size={16} />
-          Edit Profile
-        </button>
+        <div className="profile-actions">
+            <button className="edit-profile-btn">
+            <Settings size={16} />
+            Edit Profile
+            </button>
+            <button className="logout-btn" onClick={handleLogout} style={{marginLeft: '10px', backgroundColor: '#ffe5e5', color: '#d32f2f', border: 'none', padding: '8px 16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontWeight: '500'}}>
+            <LogOut size={16} />
+            Logout
+            </button>
+        </div>
       </div>
 
       {/* Stats Cards */}

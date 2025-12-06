@@ -5,7 +5,8 @@ const {
     getConversations,
     getMessages,
     sendMessage,
-    markAsRead
+    markAsRead,
+    createConversation
 } = require('../controllers/chatController');
 
 /**
@@ -14,6 +15,13 @@ const {
  * @access  Protected
  */
 router.get('/conversations', verifyToken, getConversations);
+
+/**
+ * @route   POST /api/chat/conversations
+ * @desc    Create a new conversation
+ * @access  Protected
+ */
+router.post('/conversations', verifyToken, createConversation);
 
 /**
  * @route   GET /api/chat/messages/:userId

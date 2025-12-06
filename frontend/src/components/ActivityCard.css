@@ -149,3 +149,15 @@
 .action-button:active {
   transform: translateX(0);
 }
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+

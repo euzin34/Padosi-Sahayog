@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { createTask, getAllTasks, getTaskById, updateTask, deleteTask } = require('../controllers/taskController');
+const { createTask, getAllTasks, getTaskById, updateTask, deleteTask, acceptTask } = require('../controllers/taskController');
 const { verifyToken } = require('../middleware/auth');
 const { handleValidationErrors } = require('../middleware/validation');
 
@@ -65,5 +65,12 @@ router.put(
  * @access  Protected (owner only)
  */
 router.delete('/:id', verifyToken, deleteTask);
+
+/**
+ * @route   POST /api/tasks/:id/accept
+ * @desc    Accept/Book a task
+ * @access  Protected
+ */
+router.post('/:id/accept', verifyToken, acceptTask);
 
 module.exports = router;

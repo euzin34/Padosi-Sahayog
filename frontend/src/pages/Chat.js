@@ -1,85 +1,163 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ArrowLeft, Send, Check, CheckCheck } from 'lucide-react';
+import { chatAPI } from '../services/api';
 import './Chat.css';
 
-const Chat = () => {
+const Chat = ({ initialMessage }) => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [messageInput, setMessageInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sendingMessage, setSendingMessage] = useState(false);
 
-  // Mock conversations data
-  const conversations = [
+  // Fetch conversations on mount
+  useEffect(() => {
+    fetchConversations();
+    // Poll for new messages every 3 seconds
+    const interval = setInterval(fetchConversations, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch messages when a chat is selected
+  useEffect(() => {
+    if (selectedChat) {
+      fetchMessages(selectedChat.userId);
+      // Poll for new messages in this conversation
+      const interval = setInterval(() => fetchMessages(selectedChat.userId), 2000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedChat]);
+
+  useEffect(() => {
+    if (initialMessage) {
+      setMessageInput(initialMessage);
+      // Auto-select first chat for demo
+      if (conversations.length > 0) {
+        setSelectedChat(conversations[0]);
+      }
+    }
+  }, [initialMessage, conversations]);
+
+  const fetchConversations = async () => {
+    try {
+      const response = await chatAPI.getConversations();
+      if (response.success && response.data) {
+        const formattedConvs = response.data.map(conv => ({
+          id: conv.id,
+          userId: conv.userId,
+          name: conv.name,
+          avatar: '👤',
+          lastMessage: conv.lastMessage || 'No messages yet',
+          time: getTimeAgo(conv.lastMessageTime),
+          unread: conv.unreadCount || 0,
+          online: conv.online || false
+        }));
+        setConversations(formattedConvs);
+      } else {
+        // Use mock data as fallback
+        setConversations(getMockConversations());
+      }
+    } catch (err) {
+      console.error('Fetch conversations error:', err);
+      setConversations(getMockConversations());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMessages = async (userId) => {
+    try {
+      const response = await chatAPI.getMessages(userId);
+      if (response.success && response.data) {
+        const formattedMsgs = response.data.map(msg => ({
+          id: msg.id,
+          text: msg.text,
+          sender: msg.senderId === 'current-user-id' ? 'me' : 'them', // Replace with actual user ID
+          time: new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          read: msg.read
+        }));
+        setMessages(formattedMsgs);
+      }
+    } catch (err) {
+      console.error('Fetch messages error:', err);
+    }
+  };
+
+  const getTimeAgo = (timestamp) => {
+    if (!timestamp) return 'Just now';
+    const now = new Date();
+    const created = new Date(timestamp);
+    const diffMs = now - created;
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hr ago`;
+    
+    return 'Yesterday';
+  };
+
+  // Filter conversations based on search
+  const filteredConversations = conversations.filter(conv => 
+    conv.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getMockConversations = () => [
     {
-      id: 1,
+      id: '1',
+      userId: 'user1',
       name: 'Priya Sharma',
       avatar: '👩',
       lastMessage: 'Thank you so much for the help!',
       time: '2 min ago',
       unread: 2,
-      online: true,
-      messages: [
-        { id: 1, text: 'Hi! Can you help me with groceries?', sender: 'them', time: '10:30 AM', read: true },
-        { id: 2, text: 'Sure! I can help. What do you need?', sender: 'me', time: '10:32 AM', read: true },
-        { id: 3, text: 'Just some vegetables and milk', sender: 'them', time: '10:33 AM', read: true },
-        { id: 4, text: 'No problem! I will be there in 5 min', sender: 'me', time: '10:35 AM', read: true },
-        { id: 5, text: 'Thank you so much for the help!', sender: 'them', time: '11:20 AM', read: false }
-      ]
+      online: true
     },
     {
-      id: 2,
+      id: '2',
+      userId: 'user2',
       name: 'Rahul Verma',
       avatar: '👨',
       lastMessage: 'I can pick it up by 5 PM',
       time: '15 min ago',
       unread: 0,
-      online: true,
-      messages: [
-        { id: 1, text: 'Need medicine from pharmacy', sender: 'them', time: '9:00 AM', read: true },
-        { id: 2, text: 'I can pick it up by 5 PM', sender: 'them', time: '9:15 AM', read: true }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Anjali Patel',
-      avatar: '👩',
-      lastMessage: 'The medicines have been delivered',
-      time: '1 hr ago',
-      unread: 0,
-      online: false,
-      messages: [
-        { id: 1, text: 'The medicines have been delivered', sender: 'them', time: 'Yesterday', read: true }
-      ]
-    },
-    {
-      id: 4,
-      name: 'Suresh Kumar',
-      avatar: '👨',
-      lastMessage: 'See you tomorrow for the tutoring',
-      time: '3 hrs ago',
-      unread: 0,
-      online: false,
-      messages: [
-        { id: 1, text: 'See you tomorrow for the tutoring', sender: 'them', time: '2:00 PM', read: true }
-      ]
-    },
-    {
-      id: 5,
-      name: 'Meera Joshi',
-      avatar: '👩',
-      lastMessage: 'Thanks for fixing the faucet!',
-      time: 'Yesterday',
-      unread: 0,
-      online: false,
-      messages: [
-        { id: 1, text: 'Thanks for fixing the faucet!', sender: 'them', time: 'Yesterday', read: true }
-      ]
+      online: true
     }
   ];
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (messageInput.trim() && selectedChat) {
-      // In real app, this would send to backend
-      console.log('Sending message:', messageInput);
+      const newMessage = {
+        id: Date.now(),
+        text: messageInput.trim(),
+        sender: 'me',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        read: false
+      };
+
+      // Optimistically add message to UI
+      setMessages(prev => [...prev, newMessage]);
       setMessageInput('');
+      setSendingMessage(true);
+
+      try {
+        // Send message to backend
+        const response = await chatAPI.sendMessage(selectedChat.userId, messageInput.trim());
+        
+        if (response.success) {
+          // Message sent successfully, refresh messages
+          fetchMessages(selectedChat.userId);
+        }
+      } catch (err) {
+        console.error('Send message error:', err);
+        // Message stays in UI even if API fails (optimistic update)
+      } finally {
+        setSendingMessage(false);
+      }
     }
   };
 
@@ -104,38 +182,44 @@ const Chat = () => {
             type="text"
             placeholder="Search conversations..."
             className="search-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
         <div className="conversations-list">
-          {conversations.map((conv) => (
-            <div
-              key={conv.id}
-              className="conversation-item"
-              onClick={() => setSelectedChat(conv)}
-            >
-              <div className="conversation-avatar-wrapper">
-                <div className="conversation-avatar">{conv.avatar}</div>
-                {conv.online && <div className="online-indicator"></div>}
-              </div>
+          {filteredConversations.length > 0 ? (
+            filteredConversations.map((conv) => (
+              <div
+                key={conv.id}
+                className="conversation-item"
+                onClick={() => setSelectedChat(conv)}
+              >
+                <div className="conversation-avatar-wrapper">
+                  <div className="conversation-avatar">{conv.avatar}</div>
+                  {conv.online && <div className="online-indicator"></div>}
+                </div>
 
-              <div className="conversation-content">
-                <div className="conversation-header">
-                  <h3 className="conversation-name">{conv.name}</h3>
-                  <span className="conversation-time">{conv.time}</span>
-                </div>
-                <div className="conversation-footer">
-                  <p className="last-message">
-                    <Check size={14} className="message-status" />
-                    {conv.lastMessage}
-                  </p>
-                  {conv.unread > 0 && (
-                    <div className="unread-badge">{conv.unread}</div>
-                  )}
+                <div className="conversation-content">
+                  <div className="conversation-header">
+                    <h3 className="conversation-name">{conv.name}</h3>
+                    <span className="conversation-time">{conv.time}</span>
+                  </div>
+                  <div className="conversation-footer">
+                    <p className="last-message">
+                      <Check size={14} className="message-status" />
+                      {conv.lastMessage}
+                    </p>
+                    {conv.unread > 0 && (
+                      <div className="unread-badge">{conv.unread}</div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+             <div className="no-results">No conversations found</div>
+          )}
         </div>
       </div>
     );
@@ -191,6 +275,7 @@ const Chat = () => {
           value={messageInput}
           onChange={(e) => setMessageInput(e.target.value)}
           onKeyPress={handleKeyPress}
+          autoFocus
         />
         <button
           className="send-button"

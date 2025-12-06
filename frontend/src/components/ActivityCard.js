@@ -2,7 +2,7 @@ import React from 'react';
 import { MapPin, Clock, ChevronRight } from 'lucide-react';
 import './ActivityCard.css';
 
-const ActivityCard = ({ activity }) => {
+const ActivityCard = ({ activity, onAccept }) => {
   const {
     userName,
     userAvatar,
@@ -14,8 +14,15 @@ const ActivityCard = ({ activity }) => {
     distance,
     time,
     actionLabel,
-    actionColor
+    actionColor,
+    status
   } = activity;
+
+  const handleActionClick = () => {
+    if (onAccept && status !== 'accepted') {
+      onAccept(activity);
+    }
+  };
 
   return (
     <div className="activity-card">
@@ -56,9 +63,11 @@ const ActivityCard = ({ activity }) => {
         </div>
         <button 
           className="action-button"
-          style={{ backgroundColor: actionColor }}
+          style={{ backgroundColor: status === 'accepted' ? '#9CA3AF' : actionColor }}
+          onClick={handleActionClick}
+          disabled={status === 'accepted'}
         >
-          {actionLabel}
+          {status === 'accepted' ? 'Accepted' : actionLabel}
           <ChevronRight size={16} />
         </button>
       </div>

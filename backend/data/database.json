@@ -24,5 +24,19 @@
       "lastLogin": "2025-12-06T08:52:35.030Z"
     }
   },
-  "tasks": {}
+  "tasks": {
+    "local_1765017516742ns1vrw65y": {
+      "title": "Request: Grocery",
+      "description": "I am not a home. So, I need somebody to buy 1 kg of potatoes and deliver it to my house by 3 pm",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T10:38:36.742Z",
+      "updatedAt": "2025-12-06T10:38:36.742Z",
+      "status": "active"
+    }
+  }
 }

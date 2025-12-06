@@ -189,9 +189,53 @@ function updateConversation(userId, otherUserId, lastMessage, timestamp) {
     conversations.set(userId, userConversations);
 }
 
+/**
+ * Create a new conversation
+ */
+const createConversation = async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        const { participantId, taskId } = req.body;
+
+        if (!participantId) {
+            return res.status(400).json({
+                success: false,
+                error: 'Participant ID is required'
+            });
+        }
+
+        // Create conversation ID
+        const conversationId = [userId, participantId].sort().join('_');
+        
+        // Initialize conversation for both users
+        const initialMessage = 'Conversation started';
+        const timestamp = new Date().toISOString();
+        
+        updateConversation(userId, participantId, initialMessage, timestamp);
+        updateConversation(participantId, userId, initialMessage, timestamp);
+
+        res.status(201).json({
+            success: true,
+            message: 'Conversation created successfully',
+            data: {
+                conversationId,
+                participantId,
+                taskId
+            }
+        });
+    } catch (error) {
+        console.error('Create conversation error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to create conversation'
+        });
+    }
+};
+
 module.exports = {
     getConversations,
     getMessages,
     sendMessage,
-    markAsRead
+    markAsRead,
+    createConversation
 };

@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
 const nearbyRoutes = require('./routes/nearby');
 const chatRoutes = require('./routes/chat');
+const mapRoutes = require('./routes/map');
 
 // Import middleware
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
@@ -42,6 +43,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/tasks', nearbyRoutes); // Mounted on /api/tasks for /api/tasks/nearby
 app.use('/api/chat', chatRoutes);
+app.use('/api/map', mapRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

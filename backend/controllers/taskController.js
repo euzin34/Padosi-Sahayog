@@ -272,10 +272,77 @@ const deleteTask = async (req, res) => {
     }
 };
 
+/**
+ * Accept/Book a task
+ */
+const acceptTask = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const uid = req.user.uid;
+
+        // Get existing task
+        const taskDoc = await db.collection('tasks').doc(id).get();
+
+        if (!taskDoc.exists) {
+            return res.status(404).json({
+                success: false,
+                error: 'Task not found'
+            });
+        }
+
+        const taskData = taskDoc.data();
+
+        // Check if user is trying to accept their own task
+        if (taskData.createdBy === uid) {
+            return res.status(400).json({
+                success: false,
+                error: 'You cannot accept your own task'
+            });
+        }
+
+        // Check if task is already accepted
+        if (taskData.status === 'accepted' || taskData.acceptedBy) {
+            return res.status(400).json({
+                success: false,
+                error: 'This task has already been accepted'
+            });
+        }
+
+        // Update task with acceptor info
+        const updates = {
+            status: 'accepted',
+            acceptedBy: uid,
+            acceptedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+        await db.collection('tasks').doc(id).update(updates);
+
+        // Get updated task
+        const updatedTaskDoc = await db.collection('tasks').doc(id).get();
+
+        res.json({
+            success: true,
+            message: 'Task accepted successfully',
+            data: {
+                id: updatedTaskDoc.id,
+                ...updatedTaskDoc.data()
+            }
+        });
+    } catch (error) {
+        console.error('Accept task error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to accept task'
+        });
+    }
+};
+
 module.exports = {
     createTask,
     getAllTasks,
     getTaskById,
     updateTask,
-    deleteTask
+    deleteTask,
+    acceptTask
 };
