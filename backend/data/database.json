@@ -21,21 +21,162 @@
         "longitude": 85.3433303,
         "lastUpdated": "2025-12-06T08:52:35.030Z"
       },
-      "lastLogin": "2025-12-06T08:52:35.030Z"
+      "lastLogin": "2025-12-06T11:40:07.226Z"
     }
   },
   "tasks": {
     "local_1765017516742ns1vrw65y": {
+      "title": "Need Grocery Delivery",
+      "description": "I am not at home. Need somebody to buy 1 kg of potatoes and deliver it to my house by 3 pm",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "placeName": "Kathmandu Durbar Square",
+      "category": "shopping",
+      "createdBy": {
+        "uid": "gRah7aSqQON5nvQGfIigY6chI9z1",
+        "displayName": "Satyayuuu"
+      },
+      "createdAt": "2025-12-06T10:38:36.742Z",
+      "updatedAt": "2025-12-06T10:38:36.742Z",
+      "status": "active"
+    },
+    "local_sample_thamel": {
+      "title": "Help Moving Furniture",
+      "description": "Need help moving a sofa from 2nd floor to ground floor. Will provide snacks and drinks!",
+      "location": {
+        "latitude": 27.7144,
+        "longitude": 85.312
+      },
+      "placeName": "Thamel, Kathmandu",
+      "category": "help",
+      "createdBy": {
+        "uid": "gRah7aSqQON5nvQGfIigY6chI9z1",
+        "displayName": "Satyayuuu"
+      },
+      "createdAt": "2025-12-06T11:00:00.000Z",
+      "updatedAt": "2025-12-06T11:00:00.000Z",
+      "status": "active"
+    },
+    "local_sample_patan": {
+      "title": "Medicine Delivery Needed",
+      "description": "Urgent! Need someone to pick up prescription medicine from pharmacy and deliver to Patan Hospital area",
+      "location": {
+        "latitude": 27.6724,
+        "longitude": 85.326
+      },
+      "placeName": "Patan Dhoka, Lalitpur",
+      "category": "delivery",
+      "createdBy": {
+        "uid": "gRah7aSqQON5nvQGfIigY6chI9z1",
+        "displayName": "Satyayuuu"
+      },
+      "createdAt": "2025-12-06T11:15:00.000Z",
+      "updatedAt": "2025-12-06T11:15:00.000Z",
+      "status": "active"
+    },
+    "local_sample_boudha": {
+      "title": "Tour Guide for Boudha",
+      "description": "Looking for someone to show me around Boudhanath Stupa area. Will pay for lunch!",
+      "location": {
+        "latitude": 27.7215,
+        "longitude": 85.362
+      },
+      "placeName": "Boudhanath Stupa",
+      "category": "general",
+      "createdBy": {
+        "uid": "eelsEXWU23V5FR3y7bBVxI4rKbq1",
+        "displayName": "Local User"
+      },
+      "createdAt": "2025-12-06T11:20:00.000Z",
+      "updatedAt": "2025-12-06T11:20:00.000Z",
+      "status": "active"
+    },
+    "local_sample_swayambhu": {
+      "title": "Photography Help Needed",
+      "description": "Need a photographer for a small event at Swayambhunath temple tomorrow morning",
+      "location": {
+        "latitude": 27.7149,
+        "longitude": 85.2906
+      },
+      "placeName": "Swayambhunath Temple",
+      "category": "other",
+      "createdBy": {
+        "uid": "eelsEXWU23V5FR3y7bBVxI4rKbq1",
+        "displayName": "Local User"
+      },
+      "createdAt": "2025-12-06T11:25:00.000Z",
+      "updatedAt": "2025-12-06T11:25:00.000Z",
+      "status": "active"
+    },
+    "local_sample_bhaktapur": {
+      "title": "Shopping Help at Bhaktapur",
+      "description": "Need someone to help carry shopping bags from Bhaktapur market. Heavy items!",
+      "location": {
+        "latitude": 27.671,
+        "longitude": 85.4298
+      },
+      "placeName": "Bhaktapur Durbar Square",
+      "category": "shopping",
+      "createdBy": {
+        "uid": "gRah7aSqQON5nvQGfIigY6chI9z1",
+        "displayName": "Satyayuuu"
+      },
+      "createdAt": "2025-12-06T11:30:00.000Z",
+      "updatedAt": "2025-12-06T11:30:00.000Z",
+      "status": "active"
+    },
+    "local_176502005179107phosih6": {
       "title": "Request: Grocery",
-      "description": "I am not a home. So, I need somebody to buy 1 kg of potatoes and deliver it to my house by 3 pm",
+      "description": "bring 1 kg potato",
       "location": {
         "latitude": 27.7094274,
         "longitude": 85.3433303
       },
       "category": "grocery",
       "createdBy": "123",
-      "createdAt": "2025-12-06T10:38:36.742Z",
-      "updatedAt": "2025-12-06T10:38:36.742Z",
+      "createdAt": "2025-12-06T11:20:51.791Z",
+      "updatedAt": "2025-12-06T11:20:51.791Z",
+      "status": "active"
+    },
+    "local_1765020322680gyx2vnpks": {
+      "title": "Request: Grocery",
+      "description": "bring a kg of potato",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:25:22.680Z",
+      "updatedAt": "2025-12-06T11:25:22.680Z",
+      "status": "active"
+    },
+    "local_1765020447185xo9wsmi4m": {
+      "title": "Request: Grocery",
+      "description": "potato 1 kg",
+      "location": {
+        "latitude": 27.7126566,
+        "longitude": 85.3430468
+      },
+      "category": "grocery",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:27:27.185Z",
+      "updatedAt": "2025-12-06T11:27:27.185Z",
+      "status": "active"
+    },
+    "local_1765021029950vgyp3ou3e": {
+      "title": "Request: Grocery",
+      "description": "bring 1 kg potato",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303
+      },
+      "category": "grocery",
+      "createdBy": "123",
+      "createdAt": "2025-12-06T11:37:09.950Z",
+      "updatedAt": "2025-12-06T11:37:09.950Z",
       "status": "active"
     },
     "local_1765018679529pwc85lotr": {

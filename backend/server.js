@@ -40,8 +40,8 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', nearbyRoutes); // Mount nearby FIRST (before tasks/:id route)
 app.use('/api/tasks', taskRoutes);
-app.use('/api/tasks', nearbyRoutes); // Mounted on /api/tasks for /api/tasks/nearby
 app.use('/api/chat', chatRoutes);
 app.use('/api/map', mapRoutes);
 
