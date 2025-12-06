@@ -13,6 +13,11 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
  */
 export const registerUser = async (email, password, displayName, phoneNumber) => {
   try {
+    // Check if Firebase is configured
+    if (!auth) {
+      throw new Error('Firebase is not configured. Please add your Firebase credentials to frontend/src/config/firebase.js. See FIREBASE_SETUP.md for instructions.');
+    }
+
     // First, register with backend
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
@@ -54,6 +59,11 @@ export const registerUser = async (email, password, displayName, phoneNumber) =>
  */
 export const loginUser = async (email, password, location = null) => {
   try {
+    // Check if Firebase is configured
+    if (!auth) {
+      throw new Error('Firebase is not configured. Please add your Firebase credentials to frontend/src/config/firebase.js. See FIREBASE_SETUP.md for instructions.');
+    }
+
     // Sign in with Firebase
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
