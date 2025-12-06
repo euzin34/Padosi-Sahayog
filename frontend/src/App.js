@@ -7,13 +7,13 @@ import Chat from './pages/Chat';
 import Profile from './pages/Profile';
 import PostRequest from './pages/PostRequest';
 import Auth from './components/Auth';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
   const [pageProps, setPageProps] = useState({});
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
 
   const navigateTo = (tab, props = {}) => {
     setActiveTab(tab);
@@ -40,7 +40,7 @@ function AppContent() {
   };
 
   // Show auth screen if not logged in
-  if (!currentUser) {
+  if (!user) {
     return <Auth onAuthSuccess={() => navigateTo('home')} />;
   }
 

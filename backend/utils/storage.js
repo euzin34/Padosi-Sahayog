@@ -1,24 +1,20 @@
-const { db } = require('../config/firebase');
+const db = require('./localDb');
 
 /**
- * Get user by ID
+ * Get user synchronously from local DB
  * @param {string} userId 
+ * @returns {object|null}
  */
 const getUser = (userId) => {
-    // Since db is synchronous (LocalFirestore), we can just access storage directly
-    // db.storage is the raw data
-    // db.collection('users').doc(userId).get() returns a promise 
-    
-    // But for synchronous helper, we might need to be async or cheat
-    // The chat controller called it synchronously: const otherUser = getUser(conv.otherUserId);
-    
-    // localDb is implemented as a class instance.
-    // It has `storage` property which is the raw JSON object.
-    
-    if (db && db.storage && db.storage.users) {
-        return db.storage.users[userId] || null;
+    try {
+        if (db.storage && db.storage.users && db.storage.users[userId]) {
+            return db.storage.users[userId];
+        }
+        return null;
+    } catch (error) {
+        console.error('Error getting user from storage:', error);
+        return null;
     }
-    return null;
 };
 
 module.exports = {
