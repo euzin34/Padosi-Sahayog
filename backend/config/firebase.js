@@ -28,10 +28,15 @@ try {
         throw new Error('Firebase credentials not configured. Please set up service account or environment variables.');
     }
 
-    db = admin.firestore();
+    // Use local DB for data persistence instead of Firestore
+    const localDb = require('../utils/localDb');
+    db = localDb;
+
+    // Initialize Auth (still needs Firebase Admin for token verification)
     auth = admin.auth();
 
     console.log('✅ Firebase Admin SDK initialized successfully');
+    console.log('📦 Using Local JSON Database for persistence');
 } catch (error) {
     console.error('❌ Error initializing Firebase Admin SDK:', error.message);
     process.exit(1);

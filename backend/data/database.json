@@ -1,0 +1,28 @@
+{
+  "users": {
+    "eelsEXWU23V5FR3y7bBVxI4rKbq1": {
+      "uid": "eelsEXWU23V5FR3y7bBVxI4rKbq1",
+      "email": "localtest179877223@example.com",
+      "displayName": "Local User",
+      "phoneNumber": null,
+      "createdAt": "2025-12-06T08:44:07.243Z",
+      "updatedAt": "2025-12-06T08:44:07.243Z",
+      "location": null
+    },
+    "gRah7aSqQON5nvQGfIigY6chI9z1": {
+      "uid": "gRah7aSqQON5nvQGfIigY6chI9z1",
+      "email": "satyayuneop@gmail.com",
+      "displayName": "Satyayuuu",
+      "phoneNumber": null,
+      "createdAt": "2025-12-06T08:49:53.779Z",
+      "updatedAt": "2025-12-06T08:49:53.779Z",
+      "location": {
+        "latitude": 27.7094274,
+        "longitude": 85.3433303,
+        "lastUpdated": "2025-12-06T08:52:35.030Z"
+      },
+      "lastLogin": "2025-12-06T08:52:35.030Z"
+    }
+  },
+  "tasks": {}
+}
