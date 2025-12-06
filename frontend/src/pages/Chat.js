@@ -3,7 +3,7 @@ import { Search, ArrowLeft, Send, Check, CheckCheck } from 'lucide-react';
 import { chatAPI } from '../services/api';
 import './Chat.css';
 
-const Chat = ({ initialMessage }) => {
+const Chat = ({ initialMessage, startChatWith, taskId, taskTitle }) => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [messageInput, setMessageInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,99 +12,48 @@ const Chat = ({ initialMessage }) => {
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
 
-  // Fetch conversations on mount
+  // Pure Mock Mode - Initialize with mock data
   useEffect(() => {
-    fetchConversations();
-    // Poll for new messages every 3 seconds
-    const interval = setInterval(fetchConversations, 3000);
-    return () => clearInterval(interval);
+    const mocks = getMockConversations();
+    setConversations(mocks);
+    setLoading(false);
   }, []);
 
-  // Fetch messages when a chat is selected
+  // Handle starting a chat from map/home (Mock Logic)
   useEffect(() => {
-    if (selectedChat) {
-      fetchMessages(selectedChat.userId);
-      // Poll for new messages in this conversation
-      const interval = setInterval(() => fetchMessages(selectedChat.userId), 2000);
-      return () => clearInterval(interval);
-    }
-  }, [selectedChat]);
+    if (startChatWith) {
+      // Check if we already have a conversation with this user
+      const existingConv = conversations.find(c => c.userId === startChatWith.uid || c.userId === startChatWith.id);
 
-  useEffect(() => {
-    if (initialMessage) {
-      setMessageInput(initialMessage);
-      // Auto-select first chat for demo
-      if (conversations.length > 0) {
-        setSelectedChat(conversations[0]);
-      }
-    }
-  }, [initialMessage, conversations]);
-
-  const fetchConversations = async () => {
-    try {
-      const response = await chatAPI.getConversations();
-      if (response.success && response.data) {
-        const formattedConvs = response.data.map(conv => ({
-          id: conv.id,
-          userId: conv.userId,
-          name: conv.name,
-          avatar: '👤',
-          lastMessage: conv.lastMessage || 'No messages yet',
-          time: getTimeAgo(conv.lastMessageTime),
-          unread: conv.unreadCount || 0,
-          online: conv.online || false
-        }));
-        setConversations(formattedConvs);
+      if (existingConv) {
+        setSelectedChat(existingConv);
+        // Load mock messages for this existing chat if empty
+        if (messages.length === 0) {
+          setMessages([
+            { id: 1, text: "Hey, is this task still available?", sender: 'them', time: '10:00 AM', read: true }
+          ]);
+        }
       } else {
-        // Use mock data as fallback
-        setConversations(getMockConversations());
+        // Create a new mock conversation
+        const newConv = {
+          id: taskId || `temp_${Date.now()}`,
+          userId: startChatWith.uid || startChatWith.id || 'mock_user_id',
+          name: startChatWith.displayName || 'Task Requester',
+          avatar: '👤',
+          lastMessage: taskTitle ? `Regarding: ${taskTitle}` : 'New accepted task',
+          time: 'Just now',
+          unread: 0,
+          online: true,
+          messages: []
+        };
+
+        setConversations(prev => [newConv, ...prev]);
+        setSelectedChat(newConv);
+        setMessages([]);
+        setMessageInput(`Hi, I've accepted your task "${taskTitle || 'request'}".`);
       }
-    } catch (err) {
-      console.error('Fetch conversations error:', err);
-      setConversations(getMockConversations());
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const fetchMessages = async (userId) => {
-    try {
-      const response = await chatAPI.getMessages(userId);
-      if (response.success && response.data) {
-        const formattedMsgs = response.data.map(msg => ({
-          id: msg.id,
-          text: msg.text,
-          sender: msg.senderId === 'current-user-id' ? 'me' : 'them', // Replace with actual user ID
-          time: new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          read: msg.read
-        }));
-        setMessages(formattedMsgs);
-      }
-    } catch (err) {
-      console.error('Fetch messages error:', err);
-    }
-  };
-
-  const getTimeAgo = (timestamp) => {
-    if (!timestamp) return 'Just now';
-    const now = new Date();
-    const created = new Date(timestamp);
-    const diffMs = now - created;
-    const diffMins = Math.floor(diffMs / 60000);
-    
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} min ago`;
-    
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours} hr ago`;
-    
-    return 'Yesterday';
-  };
-
-  // Filter conversations based on search
-  const filteredConversations = conversations.filter(conv => 
-    conv.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  }, [startChatWith, taskId, taskTitle]);
 
   const getMockConversations = () => [
     {
@@ -139,26 +88,53 @@ const Chat = ({ initialMessage }) => {
         read: false
       };
 
-      // Optimistically add message to UI
+      // Add message to UI
       setMessages(prev => [...prev, newMessage]);
       setMessageInput('');
       setSendingMessage(true);
 
-      try {
-        // Send message to backend
-        const response = await chatAPI.sendMessage(selectedChat.userId, messageInput.trim());
-        
-        if (response.success) {
-          // Message sent successfully, refresh messages
-          fetchMessages(selectedChat.userId);
-        }
-      } catch (err) {
-        console.error('Send message error:', err);
-        // Message stays in UI even if API fails (optimistic update)
-      } finally {
-        setSendingMessage(false);
-      }
+      // Update conversation list
+      setConversations(prev => prev.map(c =>
+        c.id === selectedChat.id
+          ? { ...c, lastMessage: newMessage.text, time: 'Just now' }
+          : c
+      ));
+
+      // Simulate Reply (No Backend)
+      setSendingMessage(false);
+      setTimeout(() => {
+        simulateReply(newMessage.text);
+      }, 1500);
     }
+  };
+
+  const simulateReply = (userText) => {
+    let replyText = "Thanks for the message! I'll get back to you shortly.";
+
+    if (userText.toLowerCase().includes('hi') || userText.toLowerCase().includes('hello')) {
+      replyText = "Hello! Thanks for accepting my task.";
+    } else if (userText.toLowerCase().includes('where')) {
+      replyText = "I'm located near the city center.";
+    } else if (userText.toLowerCase().includes('help')) {
+      replyText = "That would be great! When can you come?";
+    }
+
+    const replyMessage = {
+      id: Date.now() + 1,
+      text: replyText,
+      sender: 'them',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      read: true
+    };
+
+    setMessages(prev => [...prev, replyMessage]);
+
+    // Update conversation list last message
+    setConversations(prev => prev.map(c =>
+      c.id === selectedChat.id
+        ? { ...c, lastMessage: replyText, time: 'Just now', unread: (c.unread || 0) + 1 }
+        : c
+    ));
   };
 
   const handleKeyPress = (e) => {
@@ -167,6 +143,10 @@ const Chat = ({ initialMessage }) => {
       handleSendMessage();
     }
   };
+
+  const filteredConversations = conversations.filter(conv =>
+    conv.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Conversation List View
   if (!selectedChat) {
@@ -218,7 +198,7 @@ const Chat = ({ initialMessage }) => {
               </div>
             ))
           ) : (
-             <div className="no-results">No conversations found</div>
+            <div className="no-results">No conversations found</div>
           )}
         </div>
       </div>
@@ -247,7 +227,7 @@ const Chat = ({ initialMessage }) => {
       </div>
 
       <div className="messages-container">
-        {selectedChat.messages.map((message) => (
+        {messages.map((message) => (
           <div
             key={message.id}
             className={`message ${message.sender === 'me' ? 'message-sent' : 'message-received'}`}
@@ -257,8 +237,8 @@ const Chat = ({ initialMessage }) => {
               <div className="message-meta">
                 <span className="message-time">{message.time}</span>
                 {message.sender === 'me' && (
-                  message.read ? 
-                    <CheckCheck size={14} className="read-status" /> : 
+                  message.read ?
+                    <CheckCheck size={14} className="read-status" /> :
                     <Check size={14} className="sent-status" />
                 )}
               </div>

@@ -142,6 +142,14 @@ class API {
             headers
         });
     }
+
+    static async acceptTask(taskId, user) {
+        const headers = await this.getAuthHeader(user);
+        return this.request(`/tasks/${taskId}/accept`, {
+            method: 'POST',
+            headers
+        });
+    }
 }
 
 export default API;
