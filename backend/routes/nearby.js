@@ -1,27 +1,46 @@
 const express = require('express');
-const router = express.Router();
 const { query } = require('express-validator');
-const { handleValidationErrors } = require('../middleware/validation');
 const { getNearbyTasks } = require('../controllers/nearbyController');
+const { handleValidationErrors } = require('../middleware/validation');
+const { verifyToken } = require('../middleware/auth');
+
+const router = express.Router();
+
+/**
+ * Optional authentication middleware
+ * Attaches user info if token is provided, but doesn't fail if missing
+ */
+const optionalAuth = async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            // If token is provided, verify it
+            await verifyToken(req, res, next);
+        } else {
+            // No token provided, continue without user info
+            next();
+        }
+    } catch (error) {
+        // Token verification failed, continue without user info
+        next();
+    }
+};
 
 /**
  * @route   GET /api/tasks/nearby
  * @desc    Get nearby tasks sorted by distance
- * @access  Public
- * @query   latitude (required) - User's latitude
- * @query   longitude (required) - User's longitude
- * @query   limit (optional) - Number of results per page (default: 10, max: 100)
- * @query   page (optional) - Page number (default: 1)
- * @query   category (optional) - Filter by category
- * @query   unit (optional) - Distance unit 'km' or 'm' (default: 'km')
+ * @access  Public (optional authentication)
+ * @note    If authenticated, uses user's saved location from profile
+ *          Otherwise, requires latitude/longitude query parameters
  */
 router.get(
     '/nearby',
+    optionalAuth, // Try to authenticate, but don't require it
     [
-        query('latitude').notEmpty().withMessage('Latitude is required')
-            .isFloat({ min: -90, max: 90 }).withMessage('Invalid latitude'),
-        query('longitude').notEmpty().withMessage('Longitude is required')
-            .isFloat({ min: -180, max: 180 }).withMessage('Invalid longitude'),
+        // Make coordinates optional - will use user profile location if authenticated
+        query('latitude').optional().isFloat({ min: -90, max: 90 }).withMessage('Valid latitude is required'),
+        query('longitude').optional().isFloat({ min: -180, max: 180 }).withMessage('Valid longitude is required'),
         query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
         query('page').optional().isInt({ min: 1 }).withMessage('Page must be at least 1'),
         query('category').optional().trim(),

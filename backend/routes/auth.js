@@ -1,14 +1,10 @@
 const express = require('express');
-const router = express.Router();
 const { body } = require('express-validator');
+const { register, login, getProfile, updateProfile } = require('../controllers/authController');
 const { verifyToken } = require('../middleware/auth');
 const { handleValidationErrors } = require('../middleware/validation');
-const {
-    register,
-    login,
-    getProfile,
-    updateProfile
-} = require('../controllers/authController');
+
+const router = express.Router();
 
 /**
  * @route   POST /api/auth/register
@@ -18,7 +14,7 @@ const {
 router.post(
     '/register',
     [
-        body('email').isEmail().withMessage('Valid email is required'),
+        body('email').isEmail().withMessage('Please provide a valid email'),
         body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
         body('displayName').optional().trim(),
         body('phoneNumber').optional().trim()
@@ -61,8 +57,8 @@ router.put(
     [
         body('displayName').optional().trim(),
         body('phoneNumber').optional().trim(),
-        body('location.latitude').optional().isFloat({ min: -90, max: 90 }).withMessage('Invalid latitude'),
-        body('location.longitude').optional().isFloat({ min: -180, max: 180 }).withMessage('Invalid longitude')
+        body('location.latitude').optional().isFloat({ min: -90, max: 90 }),
+        body('location.longitude').optional().isFloat({ min: -180, max: 180 })
     ],
     handleValidationErrors,
     updateProfile

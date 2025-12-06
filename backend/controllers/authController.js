@@ -1,5 +1,4 @@
-const { auth } = require('../config/firebase');
-const { createUser, getUser, updateUser } = require('../utils/storage');
+const { db, auth } = require('../config/firebase');
 const { isValidCoordinates } = require('../utils/distance');
 
 /**
@@ -18,34 +17,32 @@ const register = async (req, res) => {
         }
 
         // Create user in Firebase Auth
-        const userPayload = {
+        const userRecord = await auth.createUser({
             email,
             password,
-            displayName: displayName || null
-        };
+            displayName: displayName || null,
+            phoneNumber: phoneNumber || null
+        });
 
-        // Only add phoneNumber if it's provided and non-empty
-        if (phoneNumber && phoneNumber.trim()) {
-            userPayload.phoneNumber = phoneNumber;
-        }
-
-        const userRecord = await auth.createUser(userPayload);
-
-        // Create user profile in memory storage
-        const userProfile = createUser(userRecord.uid, {
+        // Create user profile in Firestore
+        const userProfile = {
             uid: userRecord.uid,
             email: userRecord.email,
             displayName: displayName || null,
             phoneNumber: phoneNumber || null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             location: null // Will be updated on login
-        });
+        };
+
+        await db.collection('users').doc(userRecord.uid).set(userProfile);
 
         res.status(201).json({
             success: true,
             message: 'User registered successfully',
             data: {
-                uid: userProfile.uid,
-                email: userProfile.email,
+                uid: userRecord.uid,
+                email: userRecord.email,
                 displayName: userProfile.displayName
             }
         });
@@ -91,8 +88,8 @@ const login = async (req, res) => {
                 });
             }
 
-            // Update user location in memory storage
-            updateUser(uid, {
+            // Update user location in Firestore
+            await db.collection('users').doc(uid).update({
                 location: {
                     latitude,
                     longitude,
@@ -102,13 +99,14 @@ const login = async (req, res) => {
             });
         } else {
             // Just update last login
-            updateUser(uid, {
+            await db.collection('users').doc(uid).update({
                 lastLogin: new Date().toISOString()
             });
         }
 
         // Get user profile
-        const userData = getUser(uid);
+        const userDoc = await db.collection('users').doc(uid).get();
+        const userData = userDoc.data();
 
         res.json({
             success: true,
@@ -136,14 +134,16 @@ const getProfile = async (req, res) => {
     try {
         const uid = req.user.uid;
 
-        const userData = getUser(uid);
+        const userDoc = await db.collection('users').doc(uid).get();
 
-        if (!userData) {
+        if (!userDoc.exists) {
             return res.status(404).json({
                 success: false,
                 error: 'User profile not found'
             });
         }
+
+        const userData = userDoc.data();
 
         res.json({
             success: true,
@@ -176,7 +176,7 @@ const updateProfile = async (req, res) => {
             await auth.updateUser(uid, { displayName });
         }
 
-        if (phoneNumber !== undefined && phoneNumber && phoneNumber.trim()) {
+        if (phoneNumber !== undefined) {
             updates.phoneNumber = phoneNumber;
             // Also update in Firebase Auth
             await auth.updateUser(uid, { phoneNumber });
@@ -197,10 +197,11 @@ const updateProfile = async (req, res) => {
             };
         }
 
-        updateUser(uid, updates);
+        await db.collection('users').doc(uid).update(updates);
 
         // Get updated profile
-        const userData = getUser(uid);
+        const userDoc = await db.collection('users').doc(uid).get();
+        const userData = userDoc.data();
 
         res.json({
             success: true,

@@ -1,15 +1,10 @@
 const express = require('express');
-const router = express.Router();
 const { body } = require('express-validator');
+const { createTask, getAllTasks, getTaskById, updateTask, deleteTask } = require('../controllers/taskController');
 const { verifyToken } = require('../middleware/auth');
 const { handleValidationErrors } = require('../middleware/validation');
-const {
-    createTask,
-    getAllTasks,
-    getTaskById,
-    updateTask,
-    deleteTask
-} = require('../controllers/taskController');
+
+const router = express.Router();
 
 /**
  * @route   POST /api/tasks
@@ -53,12 +48,12 @@ router.put(
     '/:id',
     verifyToken,
     [
-        body('title').optional().trim(),
-        body('description').optional().trim(),
-        body('location.latitude').optional().isFloat({ min: -90, max: 90 }).withMessage('Invalid latitude'),
-        body('location.longitude').optional().isFloat({ min: -180, max: 180 }).withMessage('Invalid longitude'),
+        body('title').optional().trim().notEmpty(),
+        body('description').optional().trim().notEmpty(),
+        body('location.latitude').optional().isFloat({ min: -90, max: 90 }),
+        body('location.longitude').optional().isFloat({ min: -180, max: 180 }),
         body('category').optional().trim(),
-        body('status').optional().isIn(['active', 'completed', 'cancelled']).withMessage('Invalid status')
+        body('status').optional().isIn(['active', 'completed', 'cancelled'])
     ],
     handleValidationErrors,
     updateTask

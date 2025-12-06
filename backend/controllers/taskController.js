@@ -1,10 +1,10 @@
-const storage = require('../utils/storage');
+const { db } = require('../config/firebase');
 const { isValidCoordinates } = require('../utils/distance');
 
 /**
  * Create a new task listing
  */
-const createTaskHandler = async (req, res) => {
+const createTask = async (req, res) => {
     try {
         const { title, description, location, category } = req.body;
         const uid = req.user.uid;
@@ -25,8 +25,8 @@ const createTaskHandler = async (req, res) => {
             });
         }
 
-        // Create task using storage
-        const task = storage.createTask({
+        // Create task object
+        const task = {
             title,
             description,
             location: {
@@ -34,13 +34,22 @@ const createTaskHandler = async (req, res) => {
                 longitude: location.longitude
             },
             category: category || 'general',
-            createdBy: uid
-        });
+            createdBy: uid,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: 'active'
+        };
+
+        // Add task to Firestore
+        const taskRef = await db.collection('tasks').add(task);
 
         res.status(201).json({
             success: true,
             message: 'Task created successfully',
-            data: task
+            data: {
+                id: taskRef.id,
+                ...task
+            }
         });
     } catch (error) {
         console.error('Create task error:', error);
@@ -54,7 +63,7 @@ const createTaskHandler = async (req, res) => {
 /**
  * Get all tasks with pagination
  */
-const getAllTasksHandler = async (req, res) => {
+const getAllTasks = async (req, res) => {
     try {
         const { page = 1, limit = 10, category, status = 'active' } = req.query;
 
@@ -69,18 +78,32 @@ const getAllTasksHandler = async (req, res) => {
             });
         }
 
-        // Get tasks from storage with filters
-        const allTasks = storage.getAllTasks({ status, category });
-        const totalTasks = allTasks.length;
+        // Build query
+        let query = db.collection('tasks').where('status', '==', status);
+
+        if (category) {
+            query = query.where('category', '==', category);
+        }
+
+        // Get total count
+        const snapshot = await query.get();
+        const totalTasks = snapshot.size;
 
         // Apply pagination
+        const tasks = [];
         const startIndex = (pageNum - 1) * limitNum;
-        const paginatedTasks = allTasks.slice(startIndex, startIndex + limitNum);
+
+        snapshot.docs.slice(startIndex, startIndex + limitNum).forEach(doc => {
+            tasks.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
 
         res.json({
             success: true,
             data: {
-                tasks: paginatedTasks,
+                tasks,
                 pagination: {
                     page: pageNum,
                     limit: limitNum,
@@ -105,9 +128,9 @@ const getTaskById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const task = storage.getTask(id);
+        const taskDoc = await db.collection('tasks').doc(id).get();
 
-        if (!task) {
+        if (!taskDoc.exists) {
             return res.status(404).json({
                 success: false,
                 error: 'Task not found'
@@ -116,7 +139,10 @@ const getTaskById = async (req, res) => {
 
         res.json({
             success: true,
-            data: task
+            data: {
+                id: taskDoc.id,
+                ...taskDoc.data()
+            }
         });
     } catch (error) {
         console.error('Get task error:', error);
@@ -130,24 +156,26 @@ const getTaskById = async (req, res) => {
 /**
  * Update task (owner only)
  */
-const updateTaskHandler = async (req, res) => {
+const updateTask = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, description, location, category, status } = req.body;
         const uid = req.user.uid;
 
         // Get existing task
-        const task = storage.getTask(id);
+        const taskDoc = await db.collection('tasks').doc(id).get();
 
-        if (!task) {
+        if (!taskDoc.exists) {
             return res.status(404).json({
                 success: false,
                 error: 'Task not found'
             });
         }
 
+        const taskData = taskDoc.data();
+
         // Check ownership
-        if (task.createdBy !== uid) {
+        if (taskData.createdBy !== uid) {
             return res.status(403).json({
                 success: false,
                 error: 'You are not authorized to update this task'
@@ -155,7 +183,9 @@ const updateTaskHandler = async (req, res) => {
         }
 
         // Build updates object
-        const updates = {};
+        const updates = {
+            updatedAt: new Date().toISOString()
+        };
 
         if (title !== undefined) updates.title = title;
         if (description !== undefined) updates.description = description;
@@ -176,12 +206,18 @@ const updateTaskHandler = async (req, res) => {
         }
 
         // Update task
-        const updatedTask = storage.updateTask(id, updates);
+        await db.collection('tasks').doc(id).update(updates);
+
+        // Get updated task
+        const updatedTaskDoc = await db.collection('tasks').doc(id).get();
 
         res.json({
             success: true,
             message: 'Task updated successfully',
-            data: updatedTask
+            data: {
+                id: updatedTaskDoc.id,
+                ...updatedTaskDoc.data()
+            }
         });
     } catch (error) {
         console.error('Update task error:', error);
@@ -195,23 +231,25 @@ const updateTaskHandler = async (req, res) => {
 /**
  * Delete task (owner only)
  */
-const deleteTaskHandler = async (req, res) => {
+const deleteTask = async (req, res) => {
     try {
         const { id } = req.params;
         const uid = req.user.uid;
 
         // Get existing task
-        const task = storage.getTask(id);
+        const taskDoc = await db.collection('tasks').doc(id).get();
 
-        if (!task) {
+        if (!taskDoc.exists) {
             return res.status(404).json({
                 success: false,
                 error: 'Task not found'
             });
         }
 
+        const taskData = taskDoc.data();
+
         // Check ownership
-        if (task.createdBy !== uid) {
+        if (taskData.createdBy !== uid) {
             return res.status(403).json({
                 success: false,
                 error: 'You are not authorized to delete this task'
@@ -219,7 +257,7 @@ const deleteTaskHandler = async (req, res) => {
         }
 
         // Delete task
-        storage.deleteTask(id);
+        await db.collection('tasks').doc(id).delete();
 
         res.json({
             success: true,
@@ -235,9 +273,9 @@ const deleteTaskHandler = async (req, res) => {
 };
 
 module.exports = {
-    createTask: createTaskHandler,
-    getAllTasks: getAllTasksHandler,
+    createTask,
+    getAllTasks,
     getTaskById,
-    updateTask: updateTaskHandler,
-    deleteTask: deleteTaskHandler
+    updateTask,
+    deleteTask
 };
