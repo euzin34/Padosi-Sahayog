@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const path = require('path');
 require('dotenv').config();
 
 // Initialize Firebase Admin SDK
@@ -7,7 +8,8 @@ let db, auth;
 try {
     // Option 1: Using service account key file (recommended)
     if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
-        const serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
+        const serviceAccountPath = path.resolve(__dirname, '..', process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
+        const serviceAccount = require(serviceAccountPath);
 
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount)

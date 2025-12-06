@@ -8,8 +8,7 @@ import {
     updateProfile as firebaseUpdateProfile
 } from 'firebase/auth';
 
-// Firebase configuration
-// TODO: Replace with your actual Firebase config
+// Firebase configuration from environment variables
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
     authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
@@ -19,9 +18,24 @@ const firebaseConfig = {
     appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+// Check if Firebase config is valid (all required values present)
+const isValidConfig = firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.apiKey !== 'your-api-key-here' &&
+    !firebaseConfig.apiKey.includes('YOUR_') &&
+    !firebaseConfig.apiKey.includes('Dummy');
+
+// Initialize Firebase only if config is valid
+let app = null;
+let auth = null;
+
+if (isValidConfig) {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+} else {
+    console.warn('⚠️ Firebase not configured. Please create a .env file in the frontend directory with your Firebase credentials. See .env.example for the required format.');
+}
 
 /**
  * Register a new user with email and password

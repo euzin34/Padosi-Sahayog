@@ -15,18 +15,29 @@ To enable authentication, you need to configure Firebase credentials.
 
 ### Step 2: Update Frontend Configuration
 
-Open `frontend/src/config/firebase.js` and replace the placeholder values with your actual Firebase configuration:
+Create a `.env` file in the `frontend` directory (copy from `.env.example`) and add your actual Firebase configuration:
 
-```javascript
-const firebaseConfig = {
-  apiKey: "YOUR_ACTUAL_API_KEY",
-  authDomain: "your-project-id.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project-id.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+```bash
+cd frontend
+cp .env.example .env
 ```
+
+Then edit the `.env` file and replace the placeholder values with your actual Firebase configuration:
+
+```env
+# Backend Configuration
+REACT_APP_API_URL=http://localhost:5000/api
+
+# Firebase Configuration
+REACT_APP_FIREBASE_API_KEY=YOUR_ACTUAL_API_KEY
+REACT_APP_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=your-project-id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=YOUR_MESSAGING_SENDER_ID
+REACT_APP_FIREBASE_APP_ID=YOUR_APP_ID
+```
+
+> **Note**: The `.env` file is gitignored for security. Never commit your Firebase credentials to version control.
 
 ### Step 3: Backend Firebase Admin Setup
 
@@ -77,5 +88,6 @@ The application will now require users to login or register before accessing the
 ## Notes
 
 - The `.env` file is gitignored for security
-- Never commit your `serviceAccountKey.json` file
+- Never commit your `.env` file or `serviceAccountKey.json` file
 - Users will be prompted for location access on login (optional)
+- Make sure to restart the frontend development server after creating/updating the `.env` file
